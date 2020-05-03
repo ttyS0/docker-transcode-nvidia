@@ -312,7 +312,6 @@ RUN \
         --disable-debug \
         --disable-doc \
         --disable-ffplay \
-        --enable-vaapi \
         --enable-shared \
         --enable-avresample \
         --enable-libopencore-amrnb \
