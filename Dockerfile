@@ -341,6 +341,7 @@ RUN \
         --prefix="${PREFIX}" \
         --enable-nvenc \
         --enable-cuda \
+        --enable-cuda-sdk \
         --enable-cuvid \
         --enable-libnpp && \
         make && \
