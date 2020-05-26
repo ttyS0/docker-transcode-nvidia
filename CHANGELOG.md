@@ -1,3 +1,7 @@
+## 0.3.1 (2020-05-26)
+
+* bumpeg other_transcode to v0.3.1
+
 ## 0.3.0-2 (2020-05-22)
 
 * bumped ffmpeg to v4.2.3
