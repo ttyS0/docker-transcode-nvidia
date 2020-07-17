@@ -34,13 +34,13 @@ FROM devel-base as build
 
 ENV        NVIDIA_HEADERS_VERSION=9.1.23.1
 
-ENV         FFMPEG_VERSION=4.2.3 \
+ENV         FFMPEG_VERSION=4.3.1 \
             AOM_VERSION=v1.0.0 \
             FDKAAC_VERSION=2.0.1 \
             FONTCONFIG_VERSION=2.12.4 \
             FREETYPE_VERSION=2.5.5 \
             FRIBIDI_VERSION=0.19.7 \
-            KVAZAAR_VERSION=1.2.0 \
+            KVAZAAR_VERSION=2.0.0 \
             LAME_VERSION=3.100 \
             LIBASS_VERSION=0.13.7 \
             LIBPTHREAD_STUBS_VERSION=0.4 \
