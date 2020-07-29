@@ -388,7 +388,9 @@ CMD         ["--help"]
 ENTRYPOINT  ["/usr/local/bin/other-transcode"]
 ENV         LD_LIBRARY_PATH=/usr/local/lib
 
-COPY --from=build /usr/local /usr/local/
-
-
+# copy only needed files, without copying nvidia dev files
+COPY --from=build /usr/local/bin /usr/local/bin/
+COPY --from=build /usr/local/share /usr/local/share/
+COPY --from=build /usr/local/lib /usr/local/lib/
+COPY --from=build /usr/local/include /usr/local/include/
 
