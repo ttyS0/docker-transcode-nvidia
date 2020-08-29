@@ -9,7 +9,7 @@
 # non-browser based downloading.
 #
 
-FROM    nvidia/cuda:10.2-devel-ubuntu18.04 AS devel-base
+FROM    nvidia/cuda:11.0-devel-ubuntu20.04 AS devel-base
 
 ENV	    NVIDIA_DRIVER_CAPABILITIES compute,utility,video
 
@@ -20,9 +20,10 @@ RUN     apt-get -yqq update && \
         apt-get autoremove -y && \
         apt-get clean -y
 
-FROM        nvidia/cuda:10.2-runtime-ubuntu18.04 AS runtime-base
+FROM        nvidia/cuda:11.0-devel-ubuntu20.04 AS runtime-base
 
 ENV	    NVIDIA_DRIVER_CAPABILITIES compute,utility,video
+
 WORKDIR     /tmp/workdir
 
 RUN     apt-get -yqq update && \
@@ -31,8 +32,6 @@ RUN     apt-get -yqq update && \
         apt-get clean -y
 
 FROM devel-base as build
-
-ENV        NVIDIA_HEADERS_VERSION=9.1.23.1
 
 ENV         FFMPEG_VERSION=4.3.1 \
             AOM_VERSION=v1.0.0 \
@@ -56,19 +55,10 @@ ENV         FFMPEG_VERSION=4.3.1 \
             OTHER_TRANSCODE_VERSION=0.3.1 \
             SRC=/usr/local
 
-ARG         FREETYPE_SHA256SUM="5d03dd76c2171a7601e9ce10551d52d4471cf92cd205948e60289251daddffa8 freetype-2.5.5.tar.gz"
-ARG         FRIBIDI_SHA256SUM="3fc96fa9473bd31dcb5500bdf1aa78b337ba13eb8c301e7c28923fea982453a8 0.19.7.tar.gz"
-ARG         LIBASS_SHA256SUM="8fadf294bf701300d4605e6f1d92929304187fca4b8d8a47889315526adbafd7 0.13.7.tar.gz"
-ARG         LIBVIDSTAB_SHA256SUM="14d2a053e56edad4f397be0cb3ef8eb1ec3150404ce99a426c4eb641861dc0bb v1.1.0.tar.gz"
-ARG         OPUS_SHA256SUM="77db45a87b51578fbc49555ef1b10926179861d854eb2613207dc79d9ec0a9a9 opus-1.2.tar.gz"
-ARG         LIBXML2_SHA256SUM="f07dab13bf42d2b8db80620cce7419b3b87827cc937c8bb20fe13b8571ee9501  libxml2-v2.9.10.tar.gz"
-ARG         LIBBLURAY_SHA256SUM="a3dd452239b100dc9da0d01b30e1692693e2a332a7d29917bf84bb10ea7c0b42 libbluray-1.1.2.tar.bz2"
-
 ARG         MAKEFLAGS="-j2"
 ARG         PKG_CONFIG_PATH="/opt/ffmpeg/share/pkgconfig:/opt/ffmpeg/lib/pkgconfig:/opt/ffmpeg/lib64/pkgconfig"
 ARG         PREFIX=/opt/ffmpeg
 ARG         LD_LIBRARY_PATH="/opt/ffmpeg/lib:/opt/ffmpeg/lib64:/usr/lib64:/usr/lib:/lib64:/lib"
-
 
 RUN      buildDeps="autoconf \
                     automake \
@@ -92,13 +82,12 @@ RUN      buildDeps="autoconf \
                     libva-dev \
                     zlib1g-dev" && \
         apt-get -yqq update && \
-        apt-get install -yq --no-install-recommends ${buildDeps}
+        DEBIAN_FRONTEND="noninteractive" apt-get install -yq --no-install-recommends ${buildDeps}
 
 RUN \
         DIR=/tmp/nv-codec-headers && \
-        git clone https://github.com/FFmpeg/nv-codec-headers ${DIR} && \
+        git clone https://git.videolan.org/git/ffmpeg/nv-codec-headers ${DIR} && \
         cd ${DIR} && \
-        git checkout n${NVIDIA_HEADERS_VERSION} && \
         make PREFIX="${PREFIX}" && \
         make install PREFIX="${PREFIX}" && \
         rm -rf ${DIR}
@@ -178,7 +167,6 @@ RUN  \
         mkdir -p ${DIR} && \
         cd ${DIR} && \
         curl -sLO https://download.savannah.gnu.org/releases/freetype/freetype-${FREETYPE_VERSION}.tar.gz && \
-        echo ${FREETYPE_SHA256SUM} | sha256sum --check && \
         tar -zx --strip-components=1 -f freetype-${FREETYPE_VERSION}.tar.gz && \
         ./configure --prefix="${PREFIX}" --disable-static --enable-shared && \
         make && \
@@ -190,7 +178,6 @@ RUN  \
         mkdir -p ${DIR} && \
         cd ${DIR} && \
         curl -sLO https://github.com/georgmartius/vid.stab/archive/v${LIBVIDSTAB_VERSION}.tar.gz &&\
-        echo ${LIBVIDSTAB_SHA256SUM} | sha256sum --check && \
         tar -zx --strip-components=1 -f v${LIBVIDSTAB_VERSION}.tar.gz && \
         cmake -DCMAKE_INSTALL_PREFIX="${PREFIX}" . && \
         make && \
@@ -203,7 +190,6 @@ RUN  \
         mkdir -p ${DIR} && \
         cd ${DIR} && \
         curl -sLO https://github.com/fribidi/fribidi/archive/${FRIBIDI_VERSION}.tar.gz && \
-        echo ${FRIBIDI_SHA256SUM} | sha256sum --check && \
         tar -zx --strip-components=1 -f ${FRIBIDI_VERSION}.tar.gz && \
         sed -i 's/^SUBDIRS =.*/SUBDIRS=gen.tab charset lib/' Makefile.am && \
         ./bootstrap --no-config && \
@@ -228,7 +214,6 @@ RUN  \
         mkdir -p ${DIR} && \
         cd ${DIR} && \
         curl -sLO https://github.com/libass/libass/archive/${LIBASS_VERSION}.tar.gz &&\
-        echo ${LIBASS_SHA256SUM} | sha256sum --check && \
         tar -zx --strip-components=1 -f ${LIBASS_VERSION}.tar.gz && \
         ./autogen.sh && \
         ./configure -prefix="${PREFIX}" --disable-static --enable-shared && \
@@ -278,7 +263,6 @@ RUN \
         mkdir -p ${DIR} && \
         cd ${DIR} && \
         curl -sLO https://gitlab.gnome.org/GNOME/libxml2/-/archive/v${LIBXML2_VERSION}/libxml2-v${LIBXML2_VERSION}.tar.gz && \
-        echo ${LIBXML2_SHA256SUM} | sha256sum --check && \
         tar -xz --strip-components=1 -f libxml2-v${LIBXML2_VERSION}.tar.gz && \
         ./autogen.sh --prefix="${PREFIX}" --with-ftp=no --with-http=no --with-python=no && \
         make && \
@@ -291,7 +275,6 @@ RUN \
         mkdir -p ${DIR} && \
         cd ${DIR} && \
         curl -sLO https://download.videolan.org/pub/videolan/libbluray/${LIBBLURAY_VERSION}/libbluray-${LIBBLURAY_VERSION}.tar.bz2 && \
-        echo ${LIBBLURAY_SHA256SUM} | sha256sum --check && \
         tar -jx --strip-components=1 -f libbluray-${LIBBLURAY_VERSION}.tar.bz2 && \
         ./configure --prefix="${PREFIX}" --disable-examples --disable-bdjava-jar --disable-static --enable-shared && \
         make && \
@@ -341,7 +324,6 @@ RUN \
         --prefix="${PREFIX}" \
         --enable-nvenc \
         --enable-cuda \
-        --enable-cuda-sdk \
         --enable-cuvid \
         --enable-libnpp && \
         make && \
