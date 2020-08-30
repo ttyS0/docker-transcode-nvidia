@@ -20,7 +20,7 @@ RUN     apt-get -yqq update && \
         apt-get autoremove -y && \
         apt-get clean -y
 
-FROM        nvidia/cuda:11.0-devel-ubuntu20.04 AS runtime-base
+FROM        nvidia/cuda:11.0-runtime-ubuntu20.04 AS runtime-base
 
 ENV	    NVIDIA_DRIVER_CAPABILITIES compute,utility,video
 
@@ -287,8 +287,6 @@ RUN  \
         curl -sLO https://ffmpeg.org/releases/ffmpeg-${FFMPEG_VERSION}.tar.bz2 && \
         tar -jx --strip-components=1 -f ffmpeg-${FFMPEG_VERSION}.tar.bz2
 
-
-
 RUN \
         DIR=/tmp/ffmpeg && mkdir -p ${DIR} && cd ${DIR} && \
         ./configure \
@@ -319,12 +317,11 @@ RUN \
         --enable-version3 \
         --enable-libbluray \
         --extra-cflags="-I${PREFIX}/include -I${PREFIX}/include/ffnvcodec -I/usr/local/cuda/include/" \
-        --extra-ldflags="-L${PREFIX}/lib -L/usr/local/cuda/lib64 -L/usr/local/cuda/lib32/" \
+        --extra-ldflags="-L${PREFIX}/lib -L/usr/local/cuda/lib64" \
         --extra-libs=-ldl \
         --prefix="${PREFIX}" \
         --enable-nvenc \
         --enable-cuda \
-        --enable-cuvid \
         --enable-libnpp && \
         make && \
         make install && \
