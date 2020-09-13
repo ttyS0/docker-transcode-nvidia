@@ -1,5 +1,8 @@
 # docker-transcode-nvidia
 
+# THIS REPOSITORY HAS MOVED!!!!
+## Please update links to point to https://github.com/ttyS0/docker-other-transcode
+
 ## About
 
 [Don Melton](http://donmelton.com/) of [Video Transcoding](https://github.com/donmelton/video_transcoding) fame has brought his expertise to hardware accelerated transcoding in the form of [Other Video Transcoding](https://github.com/donmelton/other_video_transcoding). While Don covers the installation and usage of `other-transcode` for all normal desktop platforms, this repository's focus is using `other-transcode` as a Docker container.
